@@ -1,22 +1,25 @@
-package com.example.javamavenjunithelloworld;
+package skeleton.helloworld;
 
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import skeleton.helloworld.HelloWorld;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
 
 /**
- * Integration test for the HelloApp program.
+ * Integration test for the HelloWorld.java.
  * <p>
  * An integration test verifies the workings of a complete program, a module, or a set of dependant classes.
  */
-public class HelloWithTestsIT {
+public class HelloWorldTestsIT {
     private final ByteArrayOutputStream out = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
 
@@ -35,21 +38,17 @@ public class HelloWithTestsIT {
 
     @Test
     public void doesItSayHelloTest() {
-        String[] args = {"1"};
-        HelloApp.main(args);
+        String[] args = {};
+        HelloWorld.main(args);
 
-        assertThat(out.toString(), is(String.format("%s%s", Hello.HELLO, System.lineSeparator())));
+        assertThat(out.toString(), containsString("Alberto"));
     }
 
     @Test
-    public void doesItSayHelloTest3() {
-        String[] args = {"3"};
-        HelloApp.main(args);
-
-        // Hello
-        // Hello
-        // Hello
-        String thrice = String.format("%1$s%2$s%1$s%2$s%1$s%2$s", Hello.HELLO, System.lineSeparator());
-        assertThat(out.toString(), is(thrice));
+    public void doesItSayHelloTest2() {
+        HelloWorld hw = new HelloWorld();
+        System.out.println(hw.sayHiTo("IntegrationTest"));
+        
+        assertThat(out.toString(), containsString("Hello IntegrationTest"));
     }
 }
