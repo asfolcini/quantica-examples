@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Skeleton for Java/Maven/JUnit project
 
 A simple skeleton written in Java using Maven for the build and jUnit for tests.
@@ -20,3 +21,7 @@ A simple skeleton written in Java using Maven for the build and jUnit for tests.
 * Write your test cases in `src/test/java/*Test.java` 
 * Write your Integration Test cases in `src/test/java/*IT.java`
 
+=======
+# quantica-examples
+QUANTiCA examples
+>>>>>>> branch 'master' of https://github.com/asfolcini/quantica-examples.git
