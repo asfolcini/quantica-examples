@@ -1,7 +1,7 @@
 /**
  * 
  */
-package skeleton;
+package tradingsystems.skeleton;
 
 
 import quantica.broker.paper.PaperBroker;
@@ -34,7 +34,7 @@ public class HelloWorld {
 			CandleEvent ce = (CandleEvent) event;									
 			log(ce.toString());			
 		}				
-	} // end of MySystem	
+	}
 	
 	
 	public HelloWorld() {							
@@ -45,7 +45,7 @@ public class HelloWorld {
 		// DATAFEEDS
 		BogusMarketDataFeed myDF = new BogusMarketDataFeed(500);		
 		myDF.setMarketDataEventType(MarketDataEventType.CANDLE_EVENT);
-		myDF.subscribeSecurities(new LoadSecurities(SecurityType.STK,"SMART",Currency.USD,"IBM,XOM,BHP").getSecurities());
+		myDF.subscribeSecurities("IBM,XOM");
 								
 		// QUANTICA ENGINE
 		QuanticaEngine engine = new QuanticaEngine();
