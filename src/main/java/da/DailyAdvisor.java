@@ -1,12 +1,19 @@
 /**
  * 
  */
-package tradingsystems.skeleton;
+package da;
 
+
+import com.tictactec.ta.lib.MAType;
 
 import quantica.broker.paper.PaperBroker;
 import quantica.config.Config;
 import quantica.engine.QuanticaEngine;
+import quantica.indicator.custom.GoldenCrossIndicator;
+import quantica.indicator.custom.PivotPoint;
+import quantica.indicator.talib.BBANDS;
+import quantica.indicator.talib.MA;
+import quantica.indicator.talib.RSI;
 import quantica.marketdatafeed.csvDataFeed.CsvMarketDataFeed;
 import quantica.model.event.CandleEvent;
 import quantica.model.order.Transaction;
@@ -38,13 +45,25 @@ import quantica.report.chart.ChartingReport;
  *
  *  
  */
-public class SkeletonSystem extends Strategy implements IStrategy{
+public class DailyAdvisor extends Strategy implements IStrategy{
 	
-	private int minimumPeriods = 21;	
+	private int minimumPeriods = 200;
 	
-	public SkeletonSystem(){
-		setStrategyName("SKELETON System");
-		setStrategyDescription("A clean,light tradingsystems.skeleton trading system.");		
+	MA ema200 = new MA(this,"ema200",200,MAType.Ema);
+	MA ema50 = new MA(this,"ema50",50,MAType.Ema);
+
+	
+	private GoldenCrossIndicator goldenCrossIndicator = new GoldenCrossIndicator(this,"GCI",50,200,MAType.Ema);
+	{
+		goldenCrossIndicator.setShowInChart(false);
+	}
+	private RSI rsi = new RSI(this,"RSI",5,80,20);
+	
+	
+	public DailyAdvisor(){
+		setStrategyName("LOCADA System v.1");
+		setStrategyDescription("A clean,light, Daily Advisor strategy");	
+		
 	}
 
 	
@@ -60,6 +79,7 @@ public class SkeletonSystem extends Strategy implements IStrategy{
 						
 		log("["+getPeriodsFor(s)+"]"+ce.toString());
 		
+		
 		// check if we have enough data to activate our strategy
 		if (super.getPeriodsFor(s)>minimumPeriods) {		
 				
@@ -67,6 +87,8 @@ public class SkeletonSystem extends Strategy implements IStrategy{
 			//         YOUR CODE HERE			
 			// *********************************
 		
+			
+			
 		}// end activation
 		
 	}
@@ -112,7 +134,7 @@ public class SkeletonSystem extends Strategy implements IStrategy{
 		broker.setSlippage(0.01);
 		
 		// setting up CSV Market data feed
-		CsvMarketDataFeed myDF = new CsvMarketDataFeed(Config.getInstance().RESOURCES_PATH+"RACE.MI.csv",TimeFrame.TIMEFRAME_1day);				
+		CsvMarketDataFeed myDF = new CsvMarketDataFeed(Config.getInstance().RESOURCES_PATH+"RACEMI20200320.csv",TimeFrame.TIMEFRAME_1day);				
 		myDF.setUseAdjClose(false);		
 		
 		Persistence persistenceEngine = new MariaPersistence();
@@ -130,15 +152,15 @@ public class SkeletonSystem extends Strategy implements IStrategy{
 		// Chart report
 		ChartingReport chartReport = new ChartingReport();{
 			chartReport.setShowChart(true);
-			chartReport.setSaveChartAsPNG(false);
-			chartReport.setChartPeriods(21*12);
+			chartReport.setSaveChartAsPNG(true);
+			chartReport.setChartPeriods(21*4);
 			chartReport.setShowEquity(false);
-			chartReport.setPNGDimension(1600, 1200);
-			chartReport.setSavePath(Config.getInstance().REPORTS_PATH);
+			chartReport.setPNGDimension(400, 300);
+			chartReport.setSavePath("C:\\QT\\Storico\\reports");
 		}
 		
 		// STRATEGIES
-		Strategy strategy 	= new SkeletonSystem();
+		Strategy strategy 	= new DailyAdvisor();
 		
 			
 		// QUANTICA ENGINE

@@ -3,18 +3,16 @@
  */
 package tradingsystems.skeleton;
 
-
 import quantica.broker.paper.PaperBroker;
 import quantica.config.Config;
 import quantica.engine.QuanticaEngine;
 import quantica.marketdatafeed.csvDataFeed.CsvMarketDataFeed;
-import quantica.model.event.CandleEvent;
-import quantica.model.order.Transaction;
 import quantica.model.persistence.Persistence;
 import quantica.model.persistence.types.EngineMode;
 import quantica.model.security.types.TimeFrame;
-import quantica.model.strategy.IStrategy;
 import quantica.model.strategy.Strategy;
+import quantica.model.tradingsystem.ITradingSystem;
+import quantica.model.tradingsystem.TradingSystem;
 import quantica.persistence.MariaPersistence;
 import quantica.report.TextReport;
 import quantica.report.TextReport.ReportType;
@@ -22,87 +20,20 @@ import quantica.report.chart.ChartingReport;
 
 
 /**
- * 
- * DailyAdvisor<br>
- * Use this code as a starting point.</br>
- * 
- * <br><b>DETAILS</b><br>
- * 
- * <b>TODO</b><br>
- * -
- * -  
- *  
- * <br>
- * <b>History:</b><br>
- *  - [24/10/2019] Created. (Alberto Sfolcini)<br>
+ * @author alberto.sfolcini
  *
- *  
  */
-public class SkeletonSystem extends Strategy implements IStrategy{
-	
-	private int minimumPeriods = 21;	
-	
-	public SkeletonSystem(){
-		setStrategyName("SKELETON System");
-		setStrategyDescription("A clean,light tradingsystems.skeleton trading system.");		
+public class SkeletonTradingSystem extends TradingSystem implements ITradingSystem{
+
+	@Override
+	public void init() {
+		System.out.println("Trading System - SKELETON");
+		System.out.println("Brief trading system description here");
 	}
 
 	
 	@Override
-	public void onEvent(Object event) {	
-		CandleEvent ce = (CandleEvent) event;
-		String s = ce.getSymbol();					
-		
-		if (!ce.getTimeFrame().equals(TimeFrame.TIMEFRAME_1day)) {
-			log("This strategy supports DAILY timeframes only! your current TF is "+ce.getTimeFrame().getDescription());
-			return; 
-		}
-						
-		log("["+getPeriodsFor(s)+"]"+ce.toString());
-		
-		// check if we have enough data to activate our strategy
-		if (super.getPeriodsFor(s)>minimumPeriods) {		
-				
-			// *********************************
-			//         YOUR CODE HERE			
-			// *********************************
-		
-		}// end activation
-		
-	}
-
-	
-	@Override
-	public void onStart() {		
-		log("onStart():");		
-	}
-	
-	
-	@Override
-	public void onStop() {
-		log("onStop():");
-	}
-	
-	@Override
-	public void onExecution(Transaction t) {
-		log("onExecution(): transactionID: "+t.getTransactionId()+" "+t.getTimestamp().getDate().toString());
-		//t.getInfo();
-	}
-	
-	
-	
-	
-	
-	/**
-	 * ==========   MAIN   ============================================================================================
-	 * 
-	 * Setting up and execute it
-	 * 
-	 * ================================================================================================================
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	public void execute(boolean arg0) {
 		
 		boolean UPDATE = false; 
 		
@@ -152,7 +83,29 @@ public class SkeletonSystem extends Strategy implements IStrategy{
 		engine.setVerbose(false);
 		engine.run();			
 		
-		engine.report();			
+		engine.report();	
 	}
 	
+	@Override
+	public void reports() {
+		// TODO Auto-generated method stub		
+	}
+		
+	
+	@Override
+	public void optimize() {
+		System.out.println("Optimization is not supported.");
+	}
+
+	@Override
+	public void test() {
+		System.out.println("No test availabes for this Trading System.");		
+	}
+
+	@Override
+	public void train() {	
+		System.out.println("No training availabes for this Trading System.");		
+	}		
+	
+
 }
