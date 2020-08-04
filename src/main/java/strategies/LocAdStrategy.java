@@ -1,59 +1,39 @@
 /**
  * 
  */
-package advisors;
+package strategies;
 
 
-import java.io.File;
 import java.io.IOException;
 
 import com.tictactec.ta.lib.MAType;
 
-import quantica.broker.paper.PaperBroker;
 import quantica.config.Config;
 import quantica.engine.EngineManager;
-import quantica.engine.QuanticaEngine;
 import quantica.indicator.custom.GoldenCrossIndicator;
 import quantica.indicator.custom.PivotPoint;
 import quantica.indicator.custom.PivotPoint.FORMULA;
-import quantica.indicator.talib.ATR;
-import quantica.indicator.talib.BBANDS;
-import quantica.indicator.talib.HT_TRENDLINE;
 import quantica.indicator.talib.MA;
 import quantica.indicator.talib.RSI;
-import quantica.indicator.talib.TSF;
-import quantica.marketdatafeed.csvDataFeed.CsvMarketDataFeed;
 import quantica.model.event.CandleEvent;
 import quantica.model.order.Transaction;
-import quantica.model.security.types.TimeFrame;
 import quantica.model.strategy.IStrategy;
 import quantica.model.strategy.Strategy;
-import quantica.report.chart.ChartingReport;
 import quantica.utils.Utils;
 import quantica.utils.Writer;
 
 
 /**
- * 
- * MAIA Advisor LOCAD<br>
- * Advisor used for MAIA in order to give entry/exit levels and general stock analysis.</br>
- * 
- * <h2>maia.surprisalx.com</h2>
- *  
- * <br>
- * <b>History:</b><br>
- *  - [19/07/2020] Created. (Alberto Sfolcini)<br>
+ * EMPTY Strategy - usefull for testing purpose only
+ * @author alberto.sfolcini
  *
- *  
  */
-public class MaiaAdvisor_locad extends Strategy implements IStrategy{
-	
-	private static String NAME 			= "MAIA Advisor LOCADA ";
-	private static String VERSION		= "v1.0";
-	private static String DESCRIPTION	= "Entry/Exit levels based on reliable TA indicators.";
-	
-	
-	private int minimumPeriods = 200;
+public class LocAdStrategy extends Strategy implements IStrategy{
+		
+	public LocAdStrategy() {
+		super.setStrategyName("LocAd Strategy");
+		super.setStrategyDescription("Entry/Exit levels based on reliabe TA analysis.");
+	}
 	
 	MA ema200 = new MA(this,"ema200",200,MAType.Ema);
 	MA ema50 = new MA(this,"ema50",50,MAType.Ema);
@@ -83,50 +63,18 @@ public class MaiaAdvisor_locad extends Strategy implements IStrategy{
 		pp_monthly.setShowInChart(true);
 	}
 	
-	public MaiaAdvisor_locad(){
-		super(10);
-		setStrategyName(NAME+" "+VERSION);
-		setStrategyDescription(DESCRIPTION);		
-	}
-
-	
-	@Override
-	public void onEvent(Object event) {	
-		CandleEvent ce = (CandleEvent) event;
-		String s = ce.getSymbol();					
-		
-		if (!ce.getTimeFrame().equals(TimeFrame.TIMEFRAME_1day)) {
-			log("This strategy supports DAILY timeframes only! your current TF is "+ce.getTimeFrame().getDescription());
-			return; 
-		}
-		
-		
-		// check if we have enough data to activate our strategy
-		if (super.getPeriodsFor(s)>minimumPeriods) {		
-			//System.out.println("Volume="+ce.getVolume());
-		}// end activation
-		
-	}
-
-	
-	@Override
-	public void onStart() {		
-		log("onStart():");		
-	}
-	
 	
 	@Override
 	public void onStop() {
-		log("onStop():");
-		
 		for ( String symbol : getPastEventAllSymbols() ) {
 
-			String path = "C:/QT/Storico/Reports/"+EngineManager.getInstance().getRunID()+"/";
-			File directory = new File(path);
-			if (! directory.exists()){
-				directory.mkdir();
-			}
-			String fname = path+symbol+"-"+Utils.getFormattedDate("yyyyMMdd", Utils.getTodayDate())+".txt";
+		    CandleEvent cet = (CandleEvent) getPastEvent(symbol,0); // t0 "present/last" candle
+		    CandleEvent cey = (CandleEvent) getPastEvent(symbol,1); // t1 "previous" candle 
+			
+		    String validitySignalDate = Utils.getFormattedDate("yyyyMMdd",Utils.addDate(cet.getTimeStamp().getDate(),1));
+		    
+		    // create filename with the day of the signal taken from the last event 
+			String fname = Config.getInstance().REPORTS_PATH+EngineManager.getInstance().getRunID()+"/"+symbol+"-"+validitySignalDate+".txt";
 			Writer wrt = null;
 			try {
 				wrt = new Writer(fname,false);
@@ -150,14 +98,15 @@ public class MaiaAdvisor_locad extends Strategy implements IStrategy{
 			if (((CandleEvent) getPastEvent(symbol,0)).getVolume()>((CandleEvent) getPastEvent(symbol,1)).getVolume()) 
 				volume = "RISING";
 			else
-				volume = "STABLE";
-			
-		    CandleEvent cet = (CandleEvent) getPastEvent(symbol,0); // today
-		    CandleEvent cey = (CandleEvent) getPastEvent(symbol,1); // yesterday (previous candle) 
+				if (((CandleEvent) getPastEvent(symbol,0)).getVolume()<((CandleEvent) getPastEvent(symbol,1)).getVolume()) 
+					volume = "FALLING";
+				else
+					volume = "STABLE";
+
 		    
 			pp_daily.showPPLevelsOnChart(symbol);		
 			
-			wrt.writeln("Expiry="+Utils.getFormattedDate("yyyyMMdd",cet.getTimeStamp().getDate()));
+			wrt.writeln("Expiry="+validitySignalDate);
 			wrt.writeln("Open="+cet.getOpenPrice());
 			wrt.writeln("High="+cet.getHighPrice());
 			wrt.writeln("Low="+cet.getLowPrice());
@@ -194,66 +143,9 @@ public class MaiaAdvisor_locad extends Strategy implements IStrategy{
 			wrt.writeln("S3 Monthly="+Utils.truncate(pp_monthly.getSupport3(symbol),2));
 			wrt.close();
 		}
-
 		
-		
-	}
-	
-	@Override
-	public void onExecution(Transaction t) {
-		log("onExecution(): transactionID: "+t.getTransactionId()+" "+t.getTimestamp().getDate().toString());
-		//t.getInfo();
-	}
+	} // onStop()
 	
 	
-	
-	
-	
-	/**
-	 * ==========   MAIN   ============================================================================================
-	 * 
-	 * Setting up and execute it
-	 * 
-	 * ================================================================================================================
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-		boolean UPDATE = false; 
-		
-		// setting up broker and fees
-		PaperBroker broker	= new PaperBroker("B1");
-		broker.setFees(0.019,4,19);
-		broker.setSlippage(0.01);
-		
-		// setting up CSV Market data feed
-		//CsvMarketDataFeed myDF = new CsvMarketDataFeed(Config.getInstance().RESOURCES_PATH+"RACE.MI.csv",TimeFrame.TIMEFRAME_1day);
-		CsvMarketDataFeed myDF = new CsvMarketDataFeed("C:/QT/Historical/RACE.MI.csv",TimeFrame.TIMEFRAME_1day,true);
-		
-		// Chart report
-		ChartingReport chartReport = new ChartingReport();{
-			chartReport.setShowChart(false);
-			chartReport.setSaveChartAsPNG(true);
-			chartReport.setChartPeriods(21*4);
-			chartReport.setShowEquity(false);
-			chartReport.setPNGDimension(400, 200);
-			chartReport.setSaveName("RACE.MI");
-		}
-		
-		// STRATEGIES
-		Strategy strategy 	= new MaiaAdvisor_locad();
-					
-		// QUANTICA ENGINE
-		QuanticaEngine engine = new QuanticaEngine();
-		engine.addBroker(broker);
-		engine.addDataFeed(myDF);
-		engine.addStrategy(strategy);
-		engine.addReport(chartReport);
-		engine.setVerbose(false);
-		engine.run();			
-		
-		engine.report();			
-	}
 	
 }
