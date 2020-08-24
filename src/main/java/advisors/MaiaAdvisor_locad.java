@@ -84,7 +84,7 @@ public class MaiaAdvisor_locad extends Strategy implements IStrategy{
 	}
 	
 	public MaiaAdvisor_locad(){
-		super(10);
+		super(21);
 		setStrategyName(NAME+" "+VERSION);
 		setStrategyDescription(DESCRIPTION);		
 	}

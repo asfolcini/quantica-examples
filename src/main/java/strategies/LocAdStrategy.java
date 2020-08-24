@@ -31,6 +31,7 @@ import quantica.utils.Writer;
 public class LocAdStrategy extends Strategy implements IStrategy{
 		
 	public LocAdStrategy() {
+		super(50); // set past events to buffer
 		super.setStrategyName("LocAd Strategy");
 		super.setStrategyDescription("Entry/Exit levels based on reliabe TA analysis.");
 	}
@@ -71,8 +72,12 @@ public class LocAdStrategy extends Strategy implements IStrategy{
 		    CandleEvent cet = (CandleEvent) getPastEvent(symbol,0); // t0 "present/last" candle
 		    CandleEvent cey = (CandleEvent) getPastEvent(symbol,1); // t1 "previous" candle 
 			
-		    String validitySignalDate = Utils.getFormattedDate("yyyyMMdd",Utils.addDate(cet.getTimeStamp().getDate(),1));
-		    
+	    	String validitySignalDate = Utils.getFormattedDate("yyyyMMdd",Utils.addDate(cet.getTimeStamp().getDate(),1));
+		    // if the validity is a weekend than shift it to next monday
+	    	if (Utils.isWeekEnd(Utils.addDate(cet.getTimeStamp().getDate(),1))){
+		    	validitySignalDate = Utils.getFormattedDate("yyyyMMdd",Utils.addDate(cet.getTimeStamp().getDate(),3));
+		    };
+	    	
 		    // create filename with the day of the signal taken from the last event 
 			String fname = Config.getInstance().REPORTS_PATH+EngineManager.getInstance().getRunID()+"/"+symbol+"-"+validitySignalDate+".txt";
 			Writer wrt = null;
