@@ -98,7 +98,7 @@ public class SkeletonTradingSystem extends TradingSystem implements ITradingSyst
 	}
 
 	@Override
-	public void test() {
+	public void backtest() {
 		System.out.println("No test availabes for this Trading System.");		
 	}
 

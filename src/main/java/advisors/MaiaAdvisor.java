@@ -105,7 +105,7 @@ public class MaiaAdvisor extends TradingSystem implements ITradingSystem{
 	}
 
 	@Override
-	public void test() {
+	public void backtest() {
 		System.out.println("No test availabes for this Trading System.");		
 	}
 
